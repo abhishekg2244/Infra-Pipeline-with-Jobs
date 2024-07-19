@@ -1,0 +1,57 @@
+---
+name: 'YAML pipeline with tfsec'
+
+trigger: none
+
+pool: Default
+
+jobs:
+- job: "terraforminstalljob"    # ID of jobs should be in String
+  displayName: "terraform tool install"   # Display job name 
+  steps:
+  - task: TerraformInstaller@1
+    inputs:
+      terraformVersion: 'latest'
+
+
+- job: "terraforminitjob"
+  displayName: "terraform init and plan"
+  steps:
+  - task: TerraformTaskV4@4
+    inputs:
+      provider: 'azurerm'
+      command: 'init'
+      workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+      backendServiceArm: 'Noise_control_project_service_connection'
+      backendAzureRmResourceGroupName: 'Abhishek_RG_donot_delete'
+      backendAzureRmStorageAccountName: 'tfstorageabhi2424'
+      backendAzureRmContainerName: 'homelockcontainer'
+      backendAzureRmKey: 'dev_noise_tfstate'
+
+  - task: TerraformTaskV4@4
+    inputs:
+      provider: 'azurerm'
+      command: 'plan'
+      workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+      environmentServiceNameAzureRM: 'Noise_control_project_service_connection'
+
+- job: 
+  displayName: "terraform Apply "
+  steps:
+  
+  - task: TerraformTaskV4@4
+    inputs:
+      provider: 'azurerm'
+      command: 'init'
+      workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+      backendServiceArm: 'Noise_control_project_service_connection'
+      backendAzureRmResourceGroupName: 'Abhishek_RG_donot_delete'
+      backendAzureRmStorageAccountName: 'tfstorageabhi2424'
+      backendAzureRmContainerName: 'homelockcontainer'
+      backendAzureRmKey: 'dev_noise_tfstate'
+  - task: TerraformTaskV4@4
+    inputs:
+      provider: 'azurerm'
+      command: 'apply'
+      workingDirectory: '$(System.DefaultWorkingDirectory)/Environment/Dev'
+      environmentServiceNameAzureRM: 'Noise_control_project_service_connection'
